@@ -1,24 +1,21 @@
 
 #ifndef C_APP_UDP_CL_SERV_H
 #define C_APP_UDP_CL_SERV_H
-#define PORT "8081"
-#define ADDR "127.0.0.1"
+
+#define DEF_PORT "8081"
+#define DEF_ADDR "localhost"
 #define BSIZE 1024
-#define NLETTERS 26
-#define PAYLOAD_SIZE (NLETTERS + sizeof(short))
-#define PAYLOAD_IN_SIZE (BSIZE - sizeof(short))
+#define DEF_NLETTERS 26
+#define HEADER_SIZE (sizeof(short))
+#define PAYLOAD_SIZE (BSIZE - HEADER_SIZE)
 
 #define bailout(s) {perror(s); exit(1); }
 
 struct payload {
     short length;
-    char data[NLETTERS];
+    char data[PAYLOAD_SIZE];
 };
 
-struct payload_in {
-    short length;
-    char data[PAYLOAD_IN_SIZE];
-};
 
 short min(short a, short b) {
     return a < b ? a : b;
@@ -27,5 +24,6 @@ short min(short a, short b) {
 short max(short a, short b) {
     return a >= b ? a : b;
 }
+
 
 #endif
