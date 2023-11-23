@@ -1,33 +1,29 @@
 import socket
 import sys
+from msg_tools import verify_message
+from config import HOST, BUFSIZE, INFO_MSG, ERROR_MSG, PORT
 
-HOST = '127.0.0.1'
-BUFSIZE = 1024
+def serve_udp(host: str, port: int) -> None:
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.bind((host, port))
+        while True:
+            data, address = s.recvfrom(BUFSIZE)
+            print(f"received: {data}")
 
-INFO_MSG = "You have sent proper message"
-ERROR_MSG = "Your message does not obey contract!"
+            if verify_message(data):
+                s.sendto(INFO_MSG.encode(), address)
+            else:
+                s.sendto(ERROR_MSG.encode(), address)
 
-try:
-    port = int(sys.argv[1])
-except:
-    print("Error in port number")
-    sys.exit(1)
 
-print("Will listen on port ", port)
+if __name__ == "__main__":
+    try:
+        host = sys.argv[1]
+        port = int(sys.argv[2])
+    except:
+        host = HOST
+        port = PORT
 
-with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-    s.bind((HOST, port))
-    i = 1
-    while True:
-        data_address = s.recvfrom(BUFSIZE)
-        data = data_address[0]
-        address = data_address[1]
-        print("Message from Client:{}".format(data))
+    print(f"listening on {host}:{port}")
 
-        if not data:
-            print("Error in datagram?")
-            break
-
-        s.sendto(INFO_MSG.encode(), address)
-        print('sending dgram #', i)
-        i += 1
+    serve_udp(host, port)
