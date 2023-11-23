@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include "udp_cl_serv.h"
 
+
 #define INFO_MSG "You have sent proper message"
 #define ERROR_MSG "Your message does not obey contract!"
 
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
         if (recvfrom(binded_sock, &recv, BSIZE, 0, (struct sockaddr *) &cl_info,
                      &info_len) < 0) bailout("reading stream message")
         return_message(&recv);
-        if (sendto(binded_sock, &recv, BSIZE, 0, (struct sockaddr *) &cl_info, sizeof(cl_info)) <
+        if (sendto(binded_sock, &recv, recv.length + 1, 0, (struct sockaddr *) &cl_info, sizeof(cl_info)) <
             0) bailout(
                 "sending to client")
     }
