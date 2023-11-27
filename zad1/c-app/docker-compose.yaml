@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  udp-server:
+    container_name: udp_server
+    build:
+      dockerfile: server.dockerfile
+    ports:
+      - "8080:8080/udp"
+    command: ./server 8080
+  udp-client:
+    container_name: udp_client
+    build:
+      dockerfile: client.dockerfile
+    depends_on:
+      - udp-server
+    command: ./client 10 0 udp_server 8080

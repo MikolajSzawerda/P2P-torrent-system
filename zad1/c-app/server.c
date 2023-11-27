@@ -41,10 +41,11 @@ int main(int argc, char **argv) {
     struct addrinfo server_conf = {
             .ai_family = AF_INET,
             .ai_socktype = SOCK_DGRAM,
+            .ai_flags = AI_PASSIVE,
     };
+    printf("Init server start\n");
 
-
-    if (getaddrinfo(0, argc > 1 ? argv[1] : DEF_PORT, &server_conf, &server_binding) < 0) bailout(
+    if (getaddrinfo(NULL, argc > 1 ? argv[1] : DEF_PORT, &server_conf, &server_binding) < 0) bailout(
             "retreving binding info")
     int binded_sock;
 
@@ -53,13 +54,16 @@ int main(int argc, char **argv) {
     if (bind(binded_sock, server_binding->ai_addr, server_binding->ai_addrlen) < 0) bailout("binding stream socket");
 
     freeaddrinfo(server_binding);
-
+    printf("Server starts listening\n");
+    fflush(stdout);
     while (1) {
 
         memset(&recv, 0, sizeof(BSIZE));
         if (recvfrom(binded_sock, &recv, BSIZE, 0, (struct sockaddr *) &cl_info,
                      &info_len) < 0) bailout("reading stream message")
         return_message(&recv);
+        printf("Sending to client %s\n", recv.data);
+        fflush(stdout);
         if (sendto(binded_sock, &recv, recv.length + 1, 0, (struct sockaddr *) &cl_info, sizeof(cl_info)) <
             0) bailout(
                 "sending to client")

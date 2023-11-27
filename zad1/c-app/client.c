@@ -61,7 +61,8 @@ int main(int argc, char **argv) {
     if (recvfrom(sock, &pl, BSIZE, 0, bind_info->ai_addr, &bind_info->ai_addrlen) <
         0) bailout(
             "Receiving")
-    printf("%s\n", pl.data);
+    printf("Received from server: %s\n", pl.data);
+    fflush(stdout);
     freeaddrinfo(bind_info);
     close(sock);
     exit(0);
