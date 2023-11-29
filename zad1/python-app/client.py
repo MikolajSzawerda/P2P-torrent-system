@@ -1,18 +1,37 @@
 import socket
 import sys
+import select
+
 from msg_tools import prepare_proper_message, prepare_other_content_message, prepare_other_length_message
 from config import BUFSIZE, PORT
 
 HOST = '127.0.0.1'
 
+BASE_TIMOUT = 1
+MAX_TIMEOUT = 8
+TIMEOUT_DECAY = 2
 
-def send_udp_message(message: bytes, host: str, port: int) -> None:
+
+def send_udp_message(
+        message: bytes,
+        host: str,
+        port: int,
+        timeout: int = BASE_TIMOUT,
+) -> None:
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.setblocking(0)
         sock.sendto(message, (host, port))
+
+        ready, _, _ = select.select([sock], [], [], timeout)
+
+        if not ready:
+            new_timeout = timeout * TIMEOUT_DECAY if timeout * TIMEOUT_DECAY <= MAX_TIMEOUT else timeout
+            print(f"Package not received, retrying with timeout {new_timeout}s...")
+            return send_udp_message(message, host, port, new_timeout)
+
         data = sock.recv(BUFSIZE)
+
         print('Received: {}'.format(data))
-
-
 
 
 if __name__ == "__main__":

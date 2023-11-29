@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #include "udp_cl_serv.h"
 
 #define PROPER_MESSAGE_FLAG 0
@@ -53,17 +54,47 @@ int main(int argc, char **argv) {
             generate_proper_message(pl.data, n_letters);
             break;
     }
-    if (sendto(sock, &pl, pl.length, 0, bind_info->ai_addr, bind_info->ai_addrlen) <
-        0) bailout(
-            "sending data")
 
-    memset(&pl, 0, BSIZE);
-    if (recvfrom(sock, &pl, BSIZE, 0, bind_info->ai_addr, &bind_info->ai_addrlen) <
-        0) bailout(
-            "Receiving")
-    printf("Received from server: %s\n", pl.data);
-    fflush(stdout);
-    freeaddrinfo(bind_info);
-    close(sock);
-    exit(0);
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | SOCK_NONBLOCK);
+
+    int timeout = 2;
+
+    while (1) {
+        fd_set ready;
+        struct timeval to;
+
+        FD_ZERO(&ready);
+        FD_SET(sock, &ready);
+
+        to.tv_sec = timeout;
+        to.tv_usec = 0;
+
+        if (sendto(sock, &pl, pl.length, 0, bind_info->ai_addr, bind_info->ai_addrlen) < 0) {
+            bailout("sending data")
+        }
+
+        if (select(4, &ready, (fd_set *)0, (fd_set *)0, &to) == -1) {
+            perror("select error");
+            continue;
+        }
+
+        if (FD_ISSET(sock, &ready)) {
+            memset(&pl, 0, BSIZE);
+
+            if (recvfrom(sock, &pl, BSIZE, 0, bind_info->ai_addr, &bind_info->ai_addrlen) < 0) {
+                bailout("Receiving")
+            }
+
+            printf("Received from server: %s\n", pl.data);
+            fflush(stdout);
+
+            freeaddrinfo(bind_info);
+            close(sock);
+            exit(0);
+        } else {
+            printf("Retrying...\n");
+            fflush(stdout);
+        }
+    }
 }
