@@ -5,6 +5,9 @@ services:
     container_name: udp_server
     build:
       dockerfile: server.dockerfile
+    tty: true
+    cap_add:
+      - NET_ADMIN
     ports:
       - "8080:8080/udp"
     command: ./server 8080
@@ -12,6 +15,9 @@ services:
     container_name: udp_client
     build:
       dockerfile: client.dockerfile
+    tty: true
+    cap_add:
+      - NET_ADMIN
     depends_on:
       - udp-server
     command: ./client 10 0 udp_server 8080
