@@ -11,6 +11,8 @@ services:
     ports:
       - "8080:8080/udp"
     command: ./server 8080
+    networks:
+      - z37_network
   udp-client:
     container_name: udp_client
     build:
@@ -21,3 +23,9 @@ services:
     depends_on:
       - udp-server
     command: ./client 10 0 udp_server 8080
+    networks:
+      - z37_network 
+
+networks:
+  z37_network:
+    external: true 
