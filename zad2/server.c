@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "config.h"
-
+#include "lists.h"
 
 
 void read_from_buffer(int connfd)
@@ -15,8 +15,44 @@ void read_from_buffer(int connfd)
 
     bzero(buff, BUFF_SIZE);
     read(connfd, buff, sizeof(buff));
-    printf("From client: %.*s\n", 20, buff);
-    bzero(buff, BUFF_SIZE);
+
+
+    Node *head = NULL;
+    Node *current = NULL;
+    int i = 0;
+    int nodes_count = 0;
+    while (nodes_count < NODES_COUNT) {
+        if (head == NULL) {
+            head = (Node *)malloc(sizeof(Node));
+            current = head;
+        } else {
+            current->next = (Node *)malloc(sizeof(Node));
+            current = current->next;
+        }
+        current->dataType = buff[i++];
+        switch (current->dataType) {
+            case 0:
+                memcpy(&current->data.int16Value, buff + i, sizeof(int16_t));
+                i += sizeof(int16_t);
+                break;
+            case 1:
+                memcpy(&current->data.int32Value, buff + i, sizeof(int32_t));
+                i += sizeof(int32_t);
+                break;
+            case 2:
+                memcpy(current->data.fixedSizeString, buff + i, sizeof(current->data.fixedSizeString));
+                i += sizeof(current->data.fixedSizeString);
+                break;
+            case 3:
+                current->data.variableSizeString = strdup(buff + i);
+                i += strlen(buff + i) + 1;
+                break;
+        }
+        current->next = NULL;
+        nodes_count++;
+    }
+    printList(head);
+    freeList(head);
 
 }
 
