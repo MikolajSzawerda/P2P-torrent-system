@@ -2,7 +2,7 @@ import socket
 import struct
 
 from linked_list import Node
-from config import FIXED_SIZE_STRING_LENGTH
+from config import HOST, PORT, FIXED_SIZE_STRING_LENGTH
 
 
 def serialize_list(node: Node) -> bytes:
@@ -28,10 +28,10 @@ def main():
     head = Node(0, 123)
     head.next = Node(1, 456)
     head.next.next = Node(2, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    head.next.next.next = Node(3, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    head.next.next.next = Node(3, "bbbbb")
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('localhost', 8080))
+    s.connect((HOST, PORT))
 
     data = serialize_list(head)
 
