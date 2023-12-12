@@ -1,3 +1,4 @@
 .idea
 __pycache__
 .pychache
+*cmake-build-debug
