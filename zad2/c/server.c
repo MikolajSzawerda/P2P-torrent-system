@@ -29,7 +29,8 @@ void read_from_buffer(int connfd)
             current->next = (Node *)malloc(sizeof(Node));
             current = current->next;
         }
-        current->dataType = buff[i++];
+        current->dataType = buff[i];
+        i += sizeof(int32_t);
         switch (current->dataType) {
             case 0:
                 memcpy(&current->data.int16Value, buff + i, sizeof(int16_t));

@@ -12,7 +12,8 @@ int writeListToBuffer(Node *head, char *buff) {
     Node *current = head;
     int i = 0;
     while (current != NULL) {
-        buff[i++] = current->dataType;
+        buff[i] = current->dataType;
+        i+= sizeof(int32_t);
         switch (current->dataType) {
             case 0:
                 memcpy(buff + i, &current->data.int16Value, sizeof(int16_t));
