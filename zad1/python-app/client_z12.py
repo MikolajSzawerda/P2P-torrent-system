@@ -10,7 +10,7 @@ def send_udp_message(message: bytes, host: str, port: int) -> bytes:
     return data
 
 def find_max_datagram_size(host: str, port: int) -> None:
-    max_size = 1020
+    max_size = 65000
     try:
         while True:
             msg = prepare_proper_message(max_size)
