@@ -16,7 +16,6 @@ void read_from_buffer(int connfd)
     bzero(buff, BUFF_SIZE);
     read(connfd, buff, sizeof(buff));
 
-
     Node *head = NULL;
     Node *current = NULL;
     int i = 0;
@@ -67,6 +66,13 @@ int main()
         exit(-1);
     }
 
+    int bufferSize = 8192;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof(bufferSize)) < 0) {
+        perror("Error setting socket options");
+        close(sockfd);
+        exit(EXIT_FAILURE);
+    }
+
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -87,7 +93,7 @@ int main()
     }
     while(1){
         read_from_buffer(connfd);
-        usleep(100);
+        usleep(200);
     }
 
     close(sockfd);

@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     }
 
     int bufferSize = argc > 1 ? atoi(argv[1]) : 100;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUFFORCE, &bufferSize, sizeof(bufferSize)) < 0) {
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof(bufferSize)) < 0) {
         perror("Error setting socket options");
         close(sockfd);
         exit(EXIT_FAILURE);
@@ -94,6 +94,7 @@ int main(int argc, char **argv)
         long elapsed= (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec);
         if(elapsed > 0){
             printf("%ld\n", elapsed);
+            fflush(stdout);
         }
     }
 

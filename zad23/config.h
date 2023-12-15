@@ -3,8 +3,8 @@
 #define LAB_REPO_CONFIG_H
 
 #define PORT 8080
-#define BUFF_SIZE 20480
+#define BUFF_SIZE 3500
 #define BACKLOG 5
-#define NODES_COUNT 20
+#define NODES_COUNT 4
 #define FIXED_SIZE_STRING_LENGTH 40
 #endif //LAB_REPO_CONFIG_H
