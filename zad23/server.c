@@ -87,7 +87,7 @@ int main()
     }
     while(1){
         read_from_buffer(connfd);
-        usleep(500);
+        usleep(100);
     }
 
     close(sockfd);

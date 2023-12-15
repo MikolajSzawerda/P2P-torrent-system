@@ -1,6 +1,6 @@
 Eksperymenty zostały wykonane dla parametrów:
-- czas blokady serwera: 500ms
-- bufor nadawczy klienta: 1024B, 4096B, 10240B
+- czas blokady serwera: 100ms
+- bufor nadawczy klienta: 1024B, 8096B, 20480B
 
 ## Wykresy
 
@@ -9,13 +9,13 @@ Eksperymenty zostały wykonane dla parametrów:
 
 ![](thr-1024.png)
 
-### Bufor 4096
-![](log4096-plot.png)
-![](thr-4096.png)
+### Bufor 8096
+![](log8096-plot.png)
+![](thr-8096.png)
 
-### Bufor 10240
-![](log10240-plot.png)
-![](thr-10240.png)
+### Bufor 20480
+![](log20480-plot.png)
+![](thr-20480.png)
 
 
 

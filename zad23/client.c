@@ -46,13 +46,15 @@ void write_buffer_to_server(int sockfd)
     bzero(buff, sizeof(buff));
     // create 4 different nodes ~~ NODES_COUNT
     Node *head = createNodeInt16(123);
-    head->next = createNodeInt32(456);
-    head->next->next = createNodeFixedSizeString("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0" );
-    head->next->next->next = createNodeVariableSizeString("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\0");
+    Node* n = head;
+    for(int i=0;i<NODES_COUNT-1;i++){
+        n->next = createNodeInt32(789);
+        n = n->next;
+    }
     // write the linked list to the buffer
     writeListToBuffer(head, buff);
     // send the buffer to the server
-    write(sockfd, buff, sizeof(buff));
+    send(sockfd, buff, sizeof(buff), 0);
     // free the memory allocated
     freeList(head);
 
@@ -69,7 +71,7 @@ int main(int argc, char **argv)
     }
 
     int bufferSize = argc > 1 ? atoi(argv[1]) : 100;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof(bufferSize)) < 0) {
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUFFORCE, &bufferSize, sizeof(bufferSize)) < 0) {
         perror("Error setting socket options");
         close(sockfd);
         exit(EXIT_FAILURE);
