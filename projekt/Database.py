@@ -5,7 +5,14 @@ class Database:
     def __init__(self):
         self.db = {}
 
+    def verify_files(self, files):
+        for file in files:
+            pass
+            # TODO verify if file has required format
+            # TODO decline if client has file with same id as existing (md5, name) but different num of segments
+
     def add_client(self, client_address, files):
+        self.verify_files(files)
         self.db[client_address] = files
 
     def remove_client(self, client_address):
@@ -40,3 +47,9 @@ class Database:
             return choice(clients)
         return None
 
+    def get_all_data(self):
+        """
+        debug only method
+        :return:
+        """
+        return self.db
