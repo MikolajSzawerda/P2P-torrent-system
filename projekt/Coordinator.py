@@ -2,6 +2,9 @@ import socket
 import threading
 import json
 
+
+
+
 class Coordinator:
     def __init__(self, host, port):
         self.host = host
@@ -41,6 +44,8 @@ class Coordinator:
             print(f"Connected with {client_address}")
             threading.Thread(target=self.handle_client, args=(client_socket, client_address)).start()
 
+
 if __name__ == "__main__":
     coordinator = Coordinator('127.0.0.1', 65432)
     coordinator.start()
+
