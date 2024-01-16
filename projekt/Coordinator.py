@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+from time import sleep
 
 from Database import Database, FileFormatException
 
@@ -25,32 +26,45 @@ class Coordinator:
         print(f"Connection with {client_address} closed.")
 
     def handle_message(self, message, client_socket, client_address):
-        action = message[:20]
+        action = message[:30]
+
 
         if action.startswith('/connect'):
-            payload = json.loads(message[20:])
             try:
+                payload = json.loads(message[30:])
                 self.db.add_client(client_address, payload["files"])
                 print(f"Client added to db {client_address}")
+                client_socket.sendall("success".encode("utf-8"))
             except FileFormatException as e:
                 client_socket.sendall(str(e).encode("utf-8"))
                 print(f"Failed connect attempt of {client_address}")
                 raise ExitClient()
-            print(self.db.get_all_data())
+            # print(self.db.get_all_data())
+        elif action.startswith("/search_by_name"):
+            payload = json.loads(message[30:])
+            files = self.db.get_files_by_name(payload["name"])
+            client_socket.sendall(json.dumps(files).encode("utf-8"))
+        elif action.startswith("/search_by_md5"):
+            payload = json.loads(message[30:])
+            files = self.db.get_files_by_md5(payload["md5"])
+            client_socket.sendall(json.dumps(files).encode("utf-8"))
+        elif action.startswith("/search_by_name_md5"):
+            payload = json.loads(message[30:])
+            files = self.db.get_files_by_name_and_md5(payload["name"], payload["md5"])
+            client_socket.sendall(json.dumps(files).encode("utf-8"))
+        elif action.startswith("/get_owner_of_segment"):
+            payload = json.loads(message[30:])
+            client = self.db.get_client_with_file(payload["name"], payload["md5"], payload["segment_number"])
+            client_socket.sendall(json.dumps(client).encode("utf-8"))
+        elif action.startswith("/update_client"):
+            payload = json.loads(message[30:])
+            self.db.add_client(client_address, payload["files"])
             client_socket.sendall("success".encode("utf-8"))
-        elif action == "/search_by_name":
-            pass
-        elif action == "/search_by_md5":
-            pass
-        elif action == "/search_by_name_md5":
-            pass
-        elif action == "/get_owner_of_segment":
-            pass
-        elif action == "/update_client":
-            pass
         elif action.startswith('/close'):
             print(f"Closing connection with {client_address}")
             raise ExitClient()
+        else:
+            print("cannot handle")
 
     def handle_client(self, client_socket, client_address):
         try:
@@ -59,6 +73,7 @@ class Coordinator:
                 message = client_socket.recv(1024).decode("utf-8")
                 if not message:
                     print("no message")
+                    sleep(0.05)
                     continue
 
                 try:
