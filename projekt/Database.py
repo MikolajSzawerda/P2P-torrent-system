@@ -1,5 +1,11 @@
 from random import choice
 
+class FileFormatException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 class Database:
     def __init__(self):
@@ -7,9 +13,15 @@ class Database:
 
     def verify_files(self, files):
         for file in files:
-            pass
-            # TODO verify if file has required format
-            # TODO decline if client has file with same id as existing (md5, name) but different num of segments
+            # Check if file has all required fields
+            if not all(key in file for key in ["name", "md5", "num_segments", "owned_segments"]):
+                print(file)
+                raise FileFormatException("File does not have all required fields")
+
+            # Check if file with same name and md5 but different num_segments exists in the database
+            existing_files = self.get_files_by_name_and_md5(file['name'], file['md5'])
+            if any(existing_file['num_segments'] != file['num_segments'] for existing_file in existing_files):
+                raise FileFormatException("File with same name and md5 but different num_segments exists in the database")
 
     def add_client(self, client_address, files):
         self.verify_files(files)
