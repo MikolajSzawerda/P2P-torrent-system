@@ -1,5 +1,5 @@
 import pytest
-from Database import Database, FileFormatException
+from coordinator.src.database import Database, FileFormatException
 
 
 @pytest.fixture

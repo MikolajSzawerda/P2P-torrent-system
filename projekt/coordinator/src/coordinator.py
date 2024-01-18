@@ -3,7 +3,7 @@ import threading
 import json
 from time import sleep
 
-from Database import Database, FileFormatException
+from coordinator.src.database import Database, FileFormatException
 
 
 class ExitClient(Exception):
