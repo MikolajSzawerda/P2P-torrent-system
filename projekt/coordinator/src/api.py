@@ -58,3 +58,10 @@ async def assign_segments(
     logger.info("Assignment for file %s received %s", name, assignment)
 
     await client.send(assignment)
+
+@router.register("generate_stats")
+async def generate_stats(client: ConnectedClient) -> None:
+    stats_report = coordinator.generate_stats()
+    logger.info("Statistics stats_report generated: %s", stats_report)
+
+    await client.send(stats_report)
