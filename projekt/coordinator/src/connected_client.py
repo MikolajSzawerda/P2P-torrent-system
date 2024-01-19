@@ -41,9 +41,6 @@ class ConnectedClient:
     async def send_error_response(self) -> None:
         await self.send({"status": "error"})
 
-    def has_disconnected(self) -> bool:
-        self._writer.transport.is_closing()
-
     async def read_command(self) -> Command | None:
         data = await self._reader.read(ConnectedClient.CHUNK_SIZE)
         if not data:
