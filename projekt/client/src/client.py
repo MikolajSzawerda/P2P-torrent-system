@@ -59,28 +59,37 @@ class Client:
 
 if __name__ == "__main__":
     client = Client('127.0.0.1', 65432)
-    client.connect_and_send_files({
-        'files': [
-            {"name": "file2.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
-            {"name": "file3.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
-        ]
-    })
-    print("\nsearch by name")
-    client.search_by_name("file2.txt")
-    sleep(2)
-    print("\nsearch by md5")
-    client.search_by_md5("hdyz2")
-    sleep(2)
-    print("\nsearch by name and md5")
-    client.search_by_name_and_md5("file2.txt", "hdyz2")
-    sleep(2)
-    print("\nget owner of segment")
-    client.get_owner_of_segment("file2.txt", "hdyz2", 1)
-    sleep(2)
-    print("\nupdate client")
-    client.update_client([
-        {"name": "file4.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
-        {"name": "file5.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
-    ])
-    sleep(2)
-    client.close_connection()
+    client.client_socket.connect(('127.0.0.1', 65432))
+    client.client_socket.sendall(json.dumps({"route": "connect", "payload": {"files": [
+        {"name": "a.txt", "hash": "123", "size": 1231},
+        {"name": "b.txt", "hash": "456", "size": 123},
+        {"name": "c.txt", "hash": "789", "size": 123}
+    ]}}).encode())
+
+    response = client.client_socket.recv(1024).decode('utf-8')
+    print(response)
+
+    client.client_socket.sendall(json.dumps({"route": "share_file", "payload": {"file":
+        {"name": "d.txt", "hash": "xyz", "size": 1231}
+    }}).encode())
+
+    response = client.client_socket.recv(1024).decode('utf-8')
+    print(response)
+
+    client.client_socket.sendall(json.dumps({
+        "route": "search_by_name",
+        "payload": {"name": "a.txt"}
+    }).encode())
+
+    response = client.client_socket.recv(1024).decode('utf-8')
+    print(response)
+
+    client.client_socket.sendall(json.dumps({
+        "route": "assign_segments",
+        "payload": {"name": "a.txt", "hash": "123", "segment_ids": [0, 1]}
+    }).encode())
+
+    response = client.client_socket.recv(1024).decode('utf-8')
+    print(response)
+
+    client.client_socket.close()

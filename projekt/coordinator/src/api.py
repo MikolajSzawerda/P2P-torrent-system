@@ -15,7 +15,8 @@ coordinator = Coordinator()
 async def connect_client(client: ConnectedClient, files: list[dict]) -> None:
     logger.info("Connecting client %s with %s files", client.id, len(files))
 
-    coordinator.connect_client(client, [File.from_dict(file) for file in files])
+    coordinator.connect_client(client.id, [File.from_dict(file) for file in files])
+    await client.send_success_response()
 
 
 @router.register("share_file")
@@ -23,13 +24,14 @@ async def share_file(client: ConnectedClient, file: dict) -> None:
     logger.info("Client %s has shared a new file %s", client.id, file)
 
     coordinator.share_file(client.id, File.from_dict(file))
+    await client.send_success_response()
 
 
 @router.register("disconnect")
 async def disconnect_client(client: ConnectedClient) -> None:
     logger.info("Disconnecting client %s", client.id)
 
-    coordinator.disconnect_client(client)
+    coordinator.disconnect_client(client.id)
     await client.disconnect()
 
 
@@ -37,8 +39,8 @@ async def disconnect_client(client: ConnectedClient) -> None:
 async def search_files_by_name(client: ConnectedClient, name: str) -> None:
     logger.info("Client %s is searching for file %s", client.id, name)
 
-    res = coordinator.search_by_name(name)
-    await client.send(res)
+    result = coordinator.search_by_name(name)
+    await client.send([file.asdict() for file in result])
 
 
 @router.register("assign_segments")

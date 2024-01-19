@@ -26,10 +26,16 @@ class ConnectedClient:
         return self._address
 
     async def send(self, data: Any) -> None:
-        serialized_data = json.dumps(data)
+        serialized_data = json.dumps(data).encode()
 
         self._writer.write(serialized_data)
         await self._writer.drain()
+
+    async def send_success_response(self) -> None:
+        await self.send({"status": "success"})
+
+    async def send_error_response(self) -> None:
+        await self.send({"status": "error"})
 
     async def read_command(self) -> Command | None:
         data = await self._reader.read(ConnectedClient.CHUNK_SIZE)
