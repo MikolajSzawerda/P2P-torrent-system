@@ -1,11 +1,14 @@
 import asyncio
 import hashlib
+import logging
 import os
 from typing import Dict
 
 import aiofiles
 
 from .constants import FRAGMENT_SIZE, Document
+
+logger = logging.getLogger(__name__)
 
 
 async def save_fragment(file_id, fragment_id, data):
