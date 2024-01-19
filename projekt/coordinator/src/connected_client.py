@@ -4,7 +4,7 @@ from asyncio import StreamReader, StreamWriter
 
 from typing import Any, TypeAlias
 
-from src.schema import Command
+from coordinator.src.schema import Command
 
 logger = logging.getLogger(__name__)
 

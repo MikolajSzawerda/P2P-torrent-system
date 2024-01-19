@@ -3,9 +3,9 @@ import logging
 
 from collections import defaultdict
 
-from src.connected_client import ClientId
-from src.schema import File, FileId
-from src.statistics import Statistics
+from coordinator.src.connected_client import ClientId
+from coordinator.src.schema import File, FileId
+from coordinator.src.statistics import Statistics
 
 logger = logging.getLogger(__name__)
 

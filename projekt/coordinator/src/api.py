@@ -1,9 +1,9 @@
 import logging
 
-from src.connected_client import ConnectedClient
-from src.coordinator import Coordinator
-from src.routes_registry import RoutesRegistry
-from src.schema import FileId, File
+from coordinator.src.connected_client import ConnectedClient
+from coordinator.src.coordinator import Coordinator
+from coordinator.src.routes_registry import RoutesRegistry
+from coordinator.src.schema import FileId, File
 
 logger = logging.getLogger(__name__)
 
