@@ -1,11 +1,14 @@
 import typer
 import asyncio
 import logging.config
+from tqdm import tqdm
 
 from client.src.DownloadManager import DownloadManager
 from client.src.FileManager import FileManager
 from client.src.file_client import FileClient
+from coordinator.src.connected_client import ConnectedClient
 from client.src.file_server import start_file_sharing
+
 
 logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
@@ -25,7 +28,7 @@ async def connect(port: int):
         file_registry = await file_manager.get_files_registry()
         await show_available_files(file_manager)
         if port == 6969:
-            await asyncio.run(start_file_sharing(file_registry, port))
+            await asyncio.gather(start_file_sharing(file_registry, port))
         else:
             await start_file_sharing(file_registry, port)
 
@@ -33,7 +36,14 @@ async def connect(port: int):
 
 
 async def download(file_hash: str, file_name: str, fragment_id: int, download_manager: DownloadManager):
-    await download_manager.download_file(file_hash, file_name, fragment_id)
+    total_fragments = 150  # Tutaj liczba fragmentów
+    with tqdm(total=total_fragments, desc="Downloading", unit="fragment", dynamic_ncols=True) as progress_bar:
+        async def progress_callback(fragment_id):
+            progress_bar.update(1)
+
+        await download_manager.download_file(file_hash, file_name, fragment_id, progress_callback)
+
+    logger.info(f"Download completed for file '{file_hash}'")
 
 
 @app.command()
