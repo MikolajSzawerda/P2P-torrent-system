@@ -27,7 +27,7 @@ class ServerRunner:
             await server.serve_forever()
 
     async def _accept_new_client(
-        self, reader: StreamReader, writer: StreamWriter
+            self, reader: StreamReader, writer: StreamWriter
     ) -> None:
         address = writer.get_extra_info("peername")
         logger.info("Accepted a new connection from %s", address)

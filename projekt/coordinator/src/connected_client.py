@@ -1,7 +1,6 @@
-import logging
 import json
+import logging
 from asyncio import StreamReader, StreamWriter
-
 from typing import Any, TypeAlias
 
 from coordinator.src.schema import Command
@@ -19,7 +18,7 @@ class ConnectedClient:
     CHUNK_SIZE = 4096
 
     def __init__(
-        self, reader: StreamReader, writer: StreamWriter, address: ClientId
+            self, reader: StreamReader, writer: StreamWriter, address: ClientId
     ) -> None:
         self._reader = reader
         self._writer = writer

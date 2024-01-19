@@ -19,20 +19,14 @@ async def example_client_flow(download_manager: DownloadManager):
 async def main():
     port = int(sys.argv[1])
     other_port = int(sys.argv[2])
-    file_manager = FileManager("fragments",
+    file_manager = FileManager("../fragments",
                                "../documents")
     file_client = FileClient(file_manager)
     download_manager = DownloadManager("../documents", file_client,
                                        file_manager)
     file_registry = await file_manager.get_files_registry()
     logger.info("Available files: %s", [x.name for x in file_registry.values()])
-    if port == 6969:
-        await asyncio.gather(
-            start_file_sharing(file_registry, port),
-            example_client_flow(download_manager)
-        )
-    else:
-        await start_file_sharing(file_registry, port)
+    await start_file_sharing(file_registry, port)
 
 
 if __name__ == '__main__':

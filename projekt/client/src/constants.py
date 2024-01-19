@@ -31,6 +31,7 @@ class Document:
     path: str
     hash: str
     fragments: int
+    size: int
 
 
 @dataclass(eq=True)

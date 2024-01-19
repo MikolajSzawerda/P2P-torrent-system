@@ -1,6 +1,5 @@
 import datetime
 import logging
-
 from collections import defaultdict
 
 from coordinator.src.connected_client import ClientId
@@ -17,10 +16,12 @@ class Coordinator:
 
         self._files: dict[FileId, File] = {}
         self._file_owners: dict[FileId, set[ClientId]] = defaultdict(set)
+        self._client_server_ports: dict[ClientId, int] = {}
 
+    
         self._statistics = statistics
 
-    def connect_client(self, client_id: ClientId, files: list[File]) -> None:
+    def connect_client(self, client_id: ClientId, files: list[File], server_port=0) -> None:
         if client_id in self._clients:
             raise ValueError(f"Client {client_id} is already connected.")
 
@@ -36,6 +37,7 @@ class Coordinator:
 
         self._clients[client_id] = {file.id for file in valid_files}
         self._client_last_assignment[client_id] = self._get_current_timestamp()
+        self._client_server_ports[client_id] = server_port
         self._statistics.update_on_connect(len(self._clients))
 
         for file in valid_files:
@@ -58,7 +60,7 @@ class Coordinator:
         self._assert_client_is_connected(client_id)
 
         client_files = self._clients.pop(client_id)
-
+        self._client_server_ports.pop(client_id)
         for file_id in client_files:
             if len(self._file_owners[file_id]) == 1:
                 self._files.pop(file_id)
@@ -73,7 +75,7 @@ class Coordinator:
 
     def assign_segments(
             self, file_id: FileId, requested_segments: list[int]
-    ) -> dict[int, ClientId]:
+    ) -> dict[int, tuple[str, int]]:
         file = self._files.get(file_id)
 
         if file is None:
@@ -95,7 +97,7 @@ class Coordinator:
         for seg in requested_segments:
             assigned_owner_id = min(file_owners, key=self._client_last_assignment.get)
 
-            assignment[seg] = assigned_owner_id
+            assignment[seg] = (assigned_owner_id[0], self._client_server_ports[assigned_owner_id])
             self._client_last_assignment[assigned_owner_id] = self._get_current_timestamp()
 
         return assignment

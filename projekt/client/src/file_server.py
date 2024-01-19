@@ -11,7 +11,7 @@ example_data = "data_test"
 
 async def _send_file_stream(file_path, fragment_id: int, writer: asyncio.StreamWriter):
     data = await get_file_fragment(file_path, fragment_id)
-    receiver_header = MsgHeader(MSG_DATA_TRANSFER, FRAGMENT_SIZE, fragment_id, hashlib.md5(data).hexdigest())
+    receiver_header = MsgHeader(MSG_DATA_TRANSFER, len(data), fragment_id, hashlib.md5(data).hexdigest())
     writer.write(serialize_header(receiver_header))
     writer.write(data)
     logger.info("Sent data transfer %s", receiver_header)
@@ -24,14 +24,14 @@ async def _handle_file_share(reader: asyncio.StreamReader, writer: asyncio.Strea
         header = await read_header(reader)
         logger.info("Received request %s from %s", header, address)
         if not header:
-            logger.info("End of data stream")
+            logger.debug("End of data stream")
             break
         if not header.is_request():
             logger.warning("Not supported message type %d", header.type)
             break
         file_path = registry.get(header.hash).path
         await _send_file_stream(file_path, header.fragment_id, writer)
-    logger.info("Transfer to %s ended", address)
+    logger.debug("Transfer to %s ended", address)
     writer.close()
     await writer.wait_closed()
 

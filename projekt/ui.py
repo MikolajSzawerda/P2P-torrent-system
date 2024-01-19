@@ -1,69 +1,99 @@
-import typer
+import argparse
 import asyncio
 import logging.config
-from tqdm import tqdm
+
+import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt
+from rich.table import Table
 
 from client.src.DownloadManager import DownloadManager
 from client.src.FileManager import FileManager
+from client.src.coordinator_client import CoordinatorClient
 from client.src.file_client import FileClient
-from coordinator.src.connected_client import ConnectedClient
 from client.src.file_server import start_file_sharing
 
+FRAGMENTS_DIR = 'fragments'
+DOCUMENTS_DIR = 'documents'
+FILE_SERVER_PORT = 6969
 
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig("client/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 app = typer.Typer()
+console = Console()
 
 
-async def show_available_files(file_manager: FileManager):
-    file_registry = await file_manager.get_files_registry()
-    logger.info("Available files: %s", [x.name for x in file_registry.values()])
+class UI:
+    def __init__(self, coordinator_client, file_manager, file_client, download_manager, as_server=True):
+        self.coordinator_client = coordinator_client
+        self.file_manager = file_manager
+        self.file_client = file_client
+        self.download_manager = download_manager
+        self.as_server = as_server
+
+    @app.command()
+    async def list_files(self, file_name: str):
+        data = await self.coordinator_client.search_for_file(file_name)
+        table = Table("Name", "Hash", "Size")
+        for row in data:
+            table.add_row(row['id']['name'], row['id']['hash'], str(row['size']))
+        console.print(table)
+        return {x['id']['hash']: {
+            'file_name': x['id']['name'],
+            'file_hash': x['id']['hash'],
+            'size': x['size'],
+        } for x in data}
+
+    @app.command()
+    async def download_file(self, file_hash: str, file_name, size: int):
+        await self.download_manager.download_file(file_hash, file_name, size)
+
+    @app.command()
+    async def connect_cmd(self, ):
+        files = self.file_manager.get_files_as_dict()
+        resp = await self.coordinator_client.connect(files)
+        console.print(
+            Panel(f"[bold green] Successfully connected to coordinator![/]\n You are sharing: {len(files)} files"))
+
+    async def display_ui(self):
+        await self.coordinator_client.start()
+        await self.connect_cmd()
+        if self.as_server:
+            return
+        file_name = Prompt.ask("File name")
+        # file_name = "test.txt"
+        files_cache = await self.list_files(file_name)
+        file_hash = Prompt.ask("File hash")
+        file_data = files_cache.get(file_hash.strip())
+        if file_data is not None:
+            await self.download_file(**file_data)
+            console.print(Panel(f"[bold green] File downloaded![/]"))
 
 
-async def connect(port: int):
-    file_manager = FileManager("fragments", "../documents")
-
-    async def main():
-        file_registry = await file_manager.get_files_registry()
-        await show_available_files(file_manager)
-        if port == 6969:
-            await asyncio.gather(start_file_sharing(file_registry, port))
-        else:
-            await start_file_sharing(file_registry, port)
-
-    await main()
+def arguments():
+    parser = argparse.ArgumentParser(description="Example script with named arguments.")
+    parser.add_argument('--port', type=int, required=True, help='Your name')
+    parser.add_argument('--fragments', type=str, default='fragments', help='Your name')
+    parser.add_argument('--documents', type=str, default='documents', help='Your age (default: 30)')
+    parser.add_argument('--onlyserver', action='store_true', help='Your age (default: 30)')
+    return parser.parse_args()
 
 
-async def download(file_hash: str, file_name: str, fragment_id: int, download_manager: DownloadManager):
-    total_fragments = 150  # Tutaj liczba fragmentów
-    with tqdm(total=total_fragments, desc="Downloading", unit="fragment", dynamic_ncols=True) as progress_bar:
-        async def progress_callback(fragment_id):
-            progress_bar.update(1)
-
-        await download_manager.download_file(file_hash, file_name, fragment_id, progress_callback)
-
-    logger.info(f"Download completed for file '{file_hash}'")
-
-
-@app.command()
-def connect_cmd(port: int = 6969):
-    asyncio.run(connect(port))
-
-
-@app.command()
-def list_files():
-    file_manager = FileManager("fragments", "../documents")
-    asyncio.run(show_available_files(file_manager))
-
-
-@app.command()
-def download_cmd(file_hash: str = "b157e8529683a2da7e5e675340a48f6b", file_name: str = "test2.txt", fragment_id: int = 2):
-    file_manager = FileManager("fragments", "../documents")
+async def main():
+    args = arguments()
+    coordinator_client = CoordinatorClient('', '', args.port)
+    file_manager = FileManager(args.fragments, args.documents)
     file_client = FileClient(file_manager)
-    download_manager = DownloadManager("../documents", file_client, file_manager)
-    asyncio.run(download(file_hash, file_name, fragment_id, download_manager))
+    download_manager = DownloadManager(args.documents, file_client, file_manager, coordinator_client)
+    ui = UI(coordinator_client, file_manager, file_client, download_manager, args.onlyserver)
+    file_registry = await file_manager.get_files_registry()
+    await asyncio.gather(
+        ui.display_ui(),
+        start_file_sharing(file_registry, args.port)
+    )
 
 
-if __name__ == '__main__':
-    app()
+if __name__ == "__main__":
+    asyncio.run(main())
