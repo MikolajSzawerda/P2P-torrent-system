@@ -62,14 +62,18 @@ class UI:
         await self.connect_cmd()
         if self.as_server:
             return
-        file_name = Prompt.ask("File name")
-        # file_name = "test.txt"
-        files_cache = await self.list_files(file_name)
-        file_hash = Prompt.ask("File hash")
-        file_data = files_cache.get(file_hash.strip())
-        if file_data is not None:
-            await self.download_file(**file_data)
-            console.print(Panel(f"[bold green] File downloaded![/]"))
+        files_cache = {}
+        while True:
+            action = Prompt.ask("[bold red] Action[/]")
+            if action == 'list':
+                file_name = Prompt.ask("File name")
+                files_cache = await self.list_files(file_name)
+            elif action == 'download':
+                file_hash = Prompt.ask("File hash")
+                file_data = files_cache.get(file_hash.strip())
+                if file_data is not None:
+                    await self.download_file(**file_data)
+                    console.print(Panel(f"[bold green] File downloaded![/]"))
 
 
 def arguments():
