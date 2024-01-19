@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    process_directory("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents")
-    results = await get_file_fragment("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents/example_file.txt",
-                                      1)
+    results = await process_directory("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents")
+    get_file_fragment("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents/example_file.txt",
+                      1)
     logger.info("Results %s", results)
 
 

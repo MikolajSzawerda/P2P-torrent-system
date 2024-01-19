@@ -1,7 +1,6 @@
-import socket
 import json
+import socket
 from time import sleep
-import asyncio
 
 
 class Client:
@@ -42,7 +41,8 @@ class Client:
         print(response)
 
     def get_owner_of_segment(self, name, md5, segment_number):
-        msg = self.format_message("/get_owner_of_segment", json.dumps({"name": name, "md5": md5, "segment_number": segment_number}))
+        msg = self.format_message("/get_owner_of_segment",
+                                  json.dumps({"name": name, "md5": md5, "segment_number": segment_number}))
         self.client_socket.sendall(msg.encode('utf-8'))
         response = self.client_socket.recv(1024).decode('utf-8')
         print(response)
@@ -58,8 +58,8 @@ class Client:
         self.client_socket.close()
         print("Connection closed.")
 
+
 if __name__ == "__main__":
-    print("Dupa")
     sleep(2)
     # client = Client('127.0.0.1', 65432)
     # client.connect_and_send_files({
