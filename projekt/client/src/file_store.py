@@ -2,11 +2,12 @@ import asyncio
 import hashlib
 import logging
 import os
+import re
 from typing import Dict
 
 import aiofiles
 
-from .constants import FRAGMENT_SIZE, Document
+from .constants import FRAGMENT_SIZE, Document, FragmentedDocument
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ async def save_fragment(file_id, fragment_id, data):
         await fragment_file.write(data)
 
 
-async def process_directory(directory) -> Dict[str, Document]:
+async def get_files_registry(directory) -> Dict[str, Document]:
     async def calculate_file_hash_and_size(file_path: str) -> Document:
         hash_func = hashlib.md5()
         fragments = 0
@@ -43,6 +44,24 @@ async def process_directory(directory) -> Dict[str, Document]:
             tasks.append(calculate_file_hash_and_size(file_path))
 
     return {result.hash: result for result in await asyncio.gather(*tasks)}
+
+
+def get_fragments_registry(parent_directory) -> Dict[str, FragmentedDocument]:
+    def extract_frag_id(filename):
+        match = re.search(r'fragment_(\d+).bin', filename)
+        if match:
+            return int(match.group(1))
+        else:
+            return None
+
+    registry = {}
+    for name in os.listdir(parent_directory):
+        subdirectory = os.path.join(parent_directory, name)
+        if os.path.isdir(subdirectory):
+            fragments = {extract_frag_id(file) for file in os.listdir(subdirectory)
+                         if os.path.isfile(os.path.join(subdirectory, file))}
+            registry[name] = FragmentedDocument(name, subdirectory, fragments, 2)
+    return registry
 
 
 async def get_file_fragment(path: str, fragment_id: int) -> bytes | None:

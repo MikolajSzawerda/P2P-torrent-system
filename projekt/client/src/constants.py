@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Set
 
 FRAGMENT_SIZE = 80
 MSG_DATA_REQUEST = 0
@@ -29,4 +30,23 @@ class Document:
     name: str
     path: str
     hash: str
+    fragments: int
+
+
+@dataclass(eq=True)
+class FragmentedDocument:
+    hash_id: str
+    path: str
+    current_fragments: Set[int]
+    fragments: int
+
+    def get_missing_fragments(self) -> Set[int]:
+        full_set = set(range(1, self.fragments + 1))
+        return full_set - self.current_fragments
+
+
+@dataclass(eq=True, frozen=True)
+class Downloadable:
+    hash_id: str
+    name: str
     fragments: int
