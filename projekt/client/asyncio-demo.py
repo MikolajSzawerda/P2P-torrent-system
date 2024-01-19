@@ -13,13 +13,8 @@ logger = logging.getLogger(__name__)
 async def main():
     port = int(sys.argv[1])
     other_port = int(sys.argv[2])
-<<<<<<< HEAD
-    registry = await process_directory("/home/kuba/Documents/sem5/PSI/projekt/23z-psi/projekt/documents")
-    logger.info("Available files: %s", [x.name for x in registry.values()])
-=======
-    file_registry = await get_files_registry("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents")
+    file_registry = await get_files_registry("/home/kuba/Documents/sem5/PSI/projekt/23z-psi/projekt/documents")
     logger.info("Available files: %s", [x.name for x in file_registry.values()])
->>>>>>> 15e6e46be6c827914272a2f2540decac5a507690
     if port == 6969:
         await asyncio.gather(
             start_file_sharing(file_registry, port),
