@@ -4,13 +4,31 @@ from dataclasses import dataclass
 @dataclass(eq=True, frozen=True)
 class FileId:
     name: str
-    md5: str
+    hash: str
 
 
 @dataclass(eq=True, frozen=True)
 class File:
+    SEGMENT_SIZE_BYTES = 80
+
     id: FileId
     size: int
+
+    @property
+    def segments(self) -> int:
+        add_one = 1 if self.size % self.SEGMENT_SIZE_BYTES > 0 else 0
+        return self.size // self.SEGMENT_SIZE_BYTES + add_one
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "File":
+        name = data.get("route")
+        hash_ = data.get("hash")
+        size = data.get("size")
+
+        if any(param is None for param in (name, hash_, size)):
+            raise TypeError(f"{data} can not be serialized to {cls.__name__}")
+
+        return cls(id=FileId(name=name, hash=hash_), size=size)
 
 
 @dataclass(eq=True, frozen=True)

@@ -18,13 +18,17 @@ class ServerRunner:
         asyncio.run(self._start())
 
     async def _start(self):
-        server = await asyncio.start_server(self._accept_new_client, self._host, self._port)
-        logger.info("Server started listening on %s:%s", self._host, self._port)
+        server = await asyncio.start_server(
+            self._accept_new_client, self._host, self._port
+        )
+        logger.debug("Server started listening on %s:%s", self._host, self._port)
 
         async with server:
             await server.serve_forever()
 
-    async def _accept_new_client(self, reader: StreamReader, writer: StreamWriter) -> None:
+    async def _accept_new_client(
+        self, reader: StreamReader, writer: StreamWriter
+    ) -> None:
         address = writer.get_extra_info("peername")
         logger.info("Accepted a new connection from %s", address)
 
@@ -42,6 +46,8 @@ class ServerRunner:
                 continue
 
             try:
-                await self._router.run_handler(command.route, client=client, **command.payload)
+                await self._router.run_handler(
+                    command.route, client=client, **command.payload
+                )
             except Exception as e:
                 logger.error("Error while handling command %s. Error: %s", command, e)
