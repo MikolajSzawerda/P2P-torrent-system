@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 async def main():
     port = int(sys.argv[1])
     other_port = int(sys.argv[2])
-    registry = await process_directory("/home/mszawerd/Studia/SEM5/PSI/proj/23z-psi/projekt/documents")
+    registry = await process_directory("/home/kuba/Documents/sem5/PSI/projekt/23z-psi/projekt/documents")
     logger.info("Available files: %s", [x.name for x in registry.values()])
     if port == 6969:
         await asyncio.gather(
