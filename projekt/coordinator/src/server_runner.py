@@ -21,7 +21,7 @@ class ServerRunner:
         server = await asyncio.start_server(
             self._accept_new_client, self._host, self._port
         )
-        logger.debug("Server started listening on %s:%s", self._host, self._port)
+        logger.info("Server started listening on %s:%s", self._host, self._port)
 
         async with server:
             await server.serve_forever()
@@ -43,6 +43,7 @@ class ServerRunner:
         while True:
             command = await client.read_command()
             if not command:
+                await asyncio.sleep(0.25)
                 continue
 
             try:
