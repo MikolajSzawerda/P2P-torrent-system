@@ -92,4 +92,7 @@ if __name__ == "__main__":
     response = client.client_socket.recv(1024).decode('utf-8')
     print(response)
 
+    while True:
+        pass
+
     client.client_socket.close()
