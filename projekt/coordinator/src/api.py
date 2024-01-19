@@ -12,10 +12,10 @@ coordinator = Coordinator()
 
 
 @router.register("connect")
-async def connect_client(client: ConnectedClient, files: list[dict]) -> None:
-    logger.info("Connecting client %s with %s files", client.id, len(files))
+async def connect_client(client: ConnectedClient, server_port: int, files: list[dict]) -> None:
+    logger.info("Connecting client %s with %s files and server port %s", client.id, len(files), server_port)
 
-    coordinator.connect_client(client.id, [File.from_dict(file) for file in files])
+    coordinator.connect_client(client.id, [File.from_dict(file) for file in files], server_port)
     await client.send_success_response()
 
 
@@ -45,7 +45,7 @@ async def search_files_by_name(client: ConnectedClient, name: str) -> None:
 
 @router.register("assign_segments")
 async def assign_segments(
-    client: ConnectedClient, name: str, hash: str, segment_ids: list[int]
+        client: ConnectedClient, name: str, hash: str, segment_ids: list[int]
 ) -> None:
     logger.info(
         "Client %s is requesting an assignment of %s segments for file %s",

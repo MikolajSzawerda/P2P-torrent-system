@@ -16,9 +16,8 @@ class Client:
     def connect_and_send_files(self, files_info):
         self.client_socket.connect((self.coordinator_host, self.coordinator_port))
         print(f"Connected to Coordinator at {self.coordinator_host}:{self.coordinator_port}")
-        msg = self.format_message("/connect", json.dumps(files_info))
-        print(msg)
-        self.client_socket.sendall(msg.encode('utf-8'))
+        # msg = self.format_message("connect", json.dumps(files_info))
+        self.client_socket.sendall(json.dumps(files_info).encode())
         result = self.client_socket.recv(1024).decode("utf-8")
         print(result)
 
@@ -61,29 +60,30 @@ class Client:
 
 if __name__ == "__main__":
     sleep(2)
-    # client = Client('127.0.0.1', 65432)
-    # client.connect_and_send_files({
-    #     'files': [
-    #         {"name": "file2.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
-    #         {"name": "file3.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
-    #     ]
-    # })
-    # print("\nsearch by name")
-    # client.search_by_name("file2.txt")
-    # sleep(2)
-    # print("\nsearch by md5")
-    # client.search_by_md5("hdyz2")
-    # sleep(2)
-    # print("\nsearch by name and md5")
-    # client.search_by_name_and_md5("file2.txt", "hdyz2")
-    # sleep(2)
-    # print("\nget owner of segment")
-    # client.get_owner_of_segment("file2.txt", "hdyz2", 1)
-    # sleep(2)
-    # print("\nupdate client")
-    # client.update_client([
-    #     {"name": "file4.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
-    #     {"name": "file5.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
-    # ])
-    # sleep(2)
-    # client.close_connection()
+    client = Client('127.0.0.1', 65432)
+    client.connect_and_send_files({
+        'route': 'connect',
+        'payload': [
+            {"name": "file2.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
+            {"name": "file3.txt", "md5": "hdyz2", "num_segments": 5, "owned_segments": [0, 1, 2]},
+        ]
+    })
+    print("\nsearch by name")
+    client.search_by_name("file2.txt")
+    sleep(2)
+    print("\nsearch by md5")
+    client.search_by_md5("hdyz2")
+    sleep(2)
+    print("\nsearch by name and md5")
+    client.search_by_name_and_md5("file2.txt", "hdyz2")
+    sleep(2)
+    print("\nget owner of segment")
+    client.get_owner_of_segment("file2.txt", "hdyz2", 1)
+    sleep(2)
+    print("\nupdate client")
+    client.update_client([
+        {"name": "file4.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
+        {"name": "file5.txt", "md5": "hdyz3", "num_segments": 5, "owned_segments": [0, 1, 2]},
+    ])
+    sleep(2)
+    client.close_connection()

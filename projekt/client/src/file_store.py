@@ -35,7 +35,7 @@ async def get_files_registry(directory) -> Dict[str, Document]:
                 hash_func.update(data)
                 fragments += 1
 
-        return Document(os.path.basename(file_path), file_path, hash_func.hexdigest(), fragments)
+        return Document(os.path.basename(file_path), file_path, hash_func.hexdigest(), fragments, 160)
 
     tasks = []
     for root, dirs, files in os.walk(directory):

@@ -9,7 +9,6 @@ import aiofiles
 from .constants import FragmentedDocument, Document, FRAGMENT_SIZE
 from .file_store import get_fragments_registry
 
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +17,7 @@ class FileManager:
         self.fragments_path = fragments_path
         self.documents_path = documents_path
         self._fragments_registry: Dict[str, FragmentedDocument] = get_fragments_registry(fragments_path)
+        self._files_registry = {}
 
     async def merge_fragments(self, file_hash, file_name):
         file_dir = self._fragments_registry[file_hash].path
@@ -62,12 +62,21 @@ class FileManager:
                     hash_func.update(data)
                     fragments += 1
 
-            return Document(os.path.basename(file_path), file_path, hash_func.hexdigest(), fragments)
+            return Document(os.path.basename(file_path), file_path, hash_func.hexdigest(), fragments,
+                            os.stat(file_path).st_size)
 
         tasks = []
         for root, dirs, files in os.walk(self.documents_path):
             for name in files:
                 file_path = os.path.join(root, name)
                 tasks.append(calculate_file_hash_and_size(file_path))
+        res = {result.hash: result for result in await asyncio.gather(*tasks)}
+        self._files_registry = res
+        return res
 
-        return {result.hash: result for result in await asyncio.gather(*tasks)}
+    def get_files_as_dict(self):
+        return [{
+            'name': x.name,
+            'hash': x.hash,
+            'size': x.size
+        } for x in self._files_registry.values()]
