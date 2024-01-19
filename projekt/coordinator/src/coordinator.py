@@ -5,17 +5,20 @@ from collections import defaultdict
 
 from src.connected_client import ClientId
 from src.schema import File, FileId
+from src.statistics import Statistics
 
 logger = logging.getLogger(__name__)
 
 
 class Coordinator:
-    def __init__(self) -> None:
+    def __init__(self, statistics: Statistics = Statistics()) -> None:
         self._clients: dict[ClientId, set[FileId]] = defaultdict(set)
         self._client_last_assignment: dict[ClientId, float] = {}
 
         self._files: dict[FileId, File] = {}
         self._file_owners: dict[FileId, set[ClientId]] = defaultdict(set)
+
+        self._statistics = statistics
 
     def connect_client(self, client_id: ClientId, files: list[File]) -> None:
         if client_id in self._clients:
@@ -33,6 +36,7 @@ class Coordinator:
 
         self._clients[client_id] = {file.id for file in valid_files}
         self._client_last_assignment[client_id] = self._get_current_timestamp()
+        self._statistics.update_on_connect(len(self._clients))
 
         for file in valid_files:
             self._files[file.id] = file
@@ -48,6 +52,7 @@ class Coordinator:
         self._clients[client_id].add(file.id)
         self._files[file.id] = file
         self._file_owners[file.id].add(client_id)
+        self._statistics.update_shared_files(1)
 
     def disconnect_client(self, client_id: ClientId) -> None:
         self._assert_client_is_connected(client_id)
@@ -60,6 +65,8 @@ class Coordinator:
                 self._file_owners.pop(file_id)
             else:
                 self._file_owners[file_id].remove(client_id)
+
+        self._statistics.update_on_disconnect()
 
     def search_by_name(self, name: str) -> list[File]:
         return list(filter(lambda file: file.id.name == name, self._files.values()))
@@ -83,6 +90,7 @@ class Coordinator:
 
         assignment = {}
         file_owners = self._file_owners[file_id]
+        self._statistics.update_on_file_request(len(file_owners))
 
         for seg in requested_segments:
             assigned_owner_id = min(file_owners, key=self._client_last_assignment.get)
@@ -92,8 +100,12 @@ class Coordinator:
 
         return assignment
 
+    def generate_stats(self) -> str:
+        return self._statistics.generate_report()
+
     def _is_valid_file(self, file: File) -> bool:
         if file.id in self._files and self._files[file.id] != file:
+            self._statistics.update_invalid_files(1)
             return False
 
         return True
