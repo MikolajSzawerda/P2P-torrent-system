@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 async def example_client_flow(download_manager: DownloadManager):
     await asyncio.sleep(1)
-    await download_manager.download_file("b157e8529683a2da7e5e675340a48f6b", "test.txt", 2)
+    await download_manager.download_file("b157e8529683a2da7e5e675340a48f6b", "test2.txt", 2)
 
 
 async def main():

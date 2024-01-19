@@ -60,7 +60,7 @@ def get_fragments_registry(parent_directory) -> Dict[str, FragmentedDocument]:
         if os.path.isdir(subdirectory):
             fragments = {extract_frag_id(file) for file in os.listdir(subdirectory)
                          if os.path.isfile(os.path.join(subdirectory, file))}
-            registry[name] = FragmentedDocument(name, subdirectory, fragments)
+            registry[name] = FragmentedDocument(name, subdirectory, fragments, 2)
     return registry
 
 
