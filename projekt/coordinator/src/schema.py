@@ -1,3 +1,4 @@
+import dataclasses
 from dataclasses import dataclass
 
 
@@ -21,7 +22,7 @@ class File:
 
     @classmethod
     def from_dict(cls, data: dict) -> "File":
-        name = data.get("route")
+        name = data.get("name")
         hash_ = data.get("hash")
         size = data.get("size")
 
@@ -29,6 +30,9 @@ class File:
             raise TypeError(f"{data} can not be serialized to {cls.__name__}")
 
         return cls(id=FileId(name=name, hash=hash_), size=size)
+
+    def asdict(self) -> dict:
+        return dataclasses.asdict(self)
 
 
 @dataclass(eq=True, frozen=True)
