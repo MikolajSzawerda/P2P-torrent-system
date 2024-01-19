@@ -3,8 +3,8 @@ import logging
 
 from collections import defaultdict
 
-from coordinator.src.connected_client import ClientId
-from coordinator.src.schema import File, FileId
+from src.connected_client import ClientId
+from src.schema import File, FileId
 
 logger = logging.getLogger(__name__)
 
