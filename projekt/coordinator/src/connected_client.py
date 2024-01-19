@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import json
 from asyncio import StreamReader, StreamWriter
@@ -15,7 +14,9 @@ ClientId: TypeAlias = str
 class ConnectedClient:
     CHUNK_SIZE = 4096
 
-    def __init__(self, reader: StreamReader, writer: StreamWriter, address: ClientId) -> None:
+    def __init__(
+        self, reader: StreamReader, writer: StreamWriter, address: ClientId
+    ) -> None:
         self._reader = reader
         self._writer = writer
         self._address = address
