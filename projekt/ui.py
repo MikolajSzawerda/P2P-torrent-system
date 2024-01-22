@@ -56,6 +56,11 @@ class UI:
         resp = await self.coordinator_client.connect(files)
         console.print(
             Panel(f"[bold green] Successfully connected to coordinator![/]\n You are sharing: {len(files)} files"))
+        
+    @app.command()
+    async def statistics(self):
+        statistics = await self.coordinator_client.get_statistics()
+        return statistics
 
     async def display_ui(self):
         await self.coordinator_client.start()
@@ -74,6 +79,9 @@ class UI:
                 if file_data is not None:
                     await self.download_file(**file_data)
                     console.print(Panel(f"[bold green] File downloaded![/]"))
+            elif action == 'statistics':
+                statistics = await self.statistics()
+                console.print(statistics)
 
 
 def arguments():

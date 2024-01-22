@@ -45,3 +45,12 @@ class CoordinatorClient:
         await self.writer.drain()
         resp = await self.reader.read(4096)
         return json.loads(resp.decode())
+    
+    async def get_statistics(self):
+        self.writer.write(json.dumps({
+            'route': 'generate_stats',
+            'payload': {}
+        }).encode())
+        await self.writer.drain()
+        resp = await self.reader.read(4096)
+        return json.loads(resp.decode())
