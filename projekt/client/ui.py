@@ -89,8 +89,8 @@ class UI:
 def arguments():
     parser = argparse.ArgumentParser(description="Torrent client")
     parser.add_argument('--port', type=int, required=True, help='Your file server port')
-    parser.add_argument('--cport', type=int, required=True, help='Coordinator port')
     parser.add_argument('--chost', type=str, required=True, help='Coordinator host')
+    parser.add_argument('--cport', type=int, required=True, help='Coordinator port')
     parser.add_argument('--fragments', type=str, default='fragments', help='Dir of temp')
     parser.add_argument('--documents', type=str, default='documents', help='Dir of docs')
     parser.add_argument('--onlyserver', action='store_true')

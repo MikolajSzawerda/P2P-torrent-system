@@ -23,6 +23,10 @@ class FileManager:
         logger.debug("Merging fragments for %s", file_name)
 
         file_dir = self._fragments_registry[file_hash].path
+
+        if not os.path.exists(self.documents_path):
+            os.makedirs(self.documents_path)
+
         files = sorted(os.listdir(file_dir))
         output_name = os.path.join(self.documents_path, file_name)
         async with aiofiles.open(output_name, 'wb') as outfile:
