@@ -1,7 +1,10 @@
+import logging
 import asyncio
 import struct
 
 from .constants import *
+
+logger = logging.getLogger(__name__)
 
 
 async def read_header(reader: asyncio.StreamReader) -> MsgHeader | None:

@@ -2,9 +2,9 @@ import datetime
 import logging
 from collections import defaultdict
 
-from coordinator.src.connected_client import ClientId
-from coordinator.src.schema import File, FileId
-from coordinator.src.statistics import Statistics
+from .connected_client import ClientId
+from .schema import File, FileId
+from .statistics import Statistics
 
 logger = logging.getLogger(__name__)
 

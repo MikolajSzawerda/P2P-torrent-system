@@ -3,7 +3,7 @@ import logging
 from asyncio import StreamReader, StreamWriter
 from typing import Any, TypeAlias
 
-from coordinator.src.schema import Command
+from .schema import Command
 
 logger = logging.getLogger(__name__)
 

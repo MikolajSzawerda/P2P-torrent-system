@@ -9,17 +9,17 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 
-from client.src.DownloadManager import DownloadManager
-from client.src.FileManager import FileManager
-from client.src.coordinator_client import CoordinatorClient
-from client.src.file_client import FileClient
-from client.src.file_server import start_file_sharing
+from src.DownloadManager import DownloadManager
+from src.FileManager import FileManager
+from src.coordinator_client import CoordinatorClient
+from src.file_client import FileClient
+from src.file_server import start_file_sharing
 
-FRAGMENTS_DIR = 'fragments'
-DOCUMENTS_DIR = 'documents'
+FRAGMENTS_DIR = '../fragments'
+DOCUMENTS_DIR = '../documents'
 FILE_SERVER_PORT = 6969
 
-logging.config.fileConfig("client/logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig("./client/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 app = typer.Typer()

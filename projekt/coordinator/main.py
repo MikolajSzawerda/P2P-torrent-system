@@ -4,7 +4,7 @@ from src.server_runner import ServerRunner
 from src.api import router
 
 
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig("./coordinator/logging.conf", disable_existing_loggers=False)
 
 HOST = "127.0.0.1"
 PORT = 65432

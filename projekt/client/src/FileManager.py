@@ -20,13 +20,17 @@ class FileManager:
         self._files_registry = {}
 
     async def merge_fragments(self, file_hash, file_name):
+        logger.debug("Merging fragments for %s", file_name)
+
         file_dir = self._fragments_registry[file_hash].path
         files = sorted(os.listdir(file_dir))
         output_name = os.path.join(self.documents_path, file_name)
         async with aiofiles.open(output_name, 'wb') as outfile:
             for filename in files:
-                if os.path.isfile(os.path.join(file_dir, filename)):
-                    async with aiofiles.open(os.path.join(file_dir, filename), 'rb') as infile:
+                file_path = os.path.join(file_dir, filename)
+                if os.path.isfile(file_path):
+                    logger.debug("Writing fragment %s", filename)
+                    async with aiofiles.open(file_path, 'rb') as infile:
                         content = await infile.read()
                         await outfile.write(content)
 
@@ -69,8 +73,10 @@ class FileManager:
         for root, dirs, files in os.walk(self.documents_path):
             for name in files:
                 file_path = os.path.join(root, name)
+                logger.debug("Initializing file %s", file_path)
                 tasks.append(calculate_file_hash_and_size(file_path))
         res = {result.hash: result for result in await asyncio.gather(*tasks)}
+        logger.debug("Registry: %s", res);
         self._files_registry = res
         return res
 

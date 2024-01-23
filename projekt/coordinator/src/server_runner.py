@@ -2,8 +2,8 @@ import asyncio
 import logging
 from asyncio import StreamWriter, StreamReader
 
-from coordinator.src.connected_client import ConnectedClient, ClientIsNotConnectedError
-from coordinator.src.routes_registry import RoutesRegistry
+from .connected_client import ConnectedClient, ClientIsNotConnectedError
+from .routes_registry import RoutesRegistry
 
 logger = logging.getLogger(__name__)
 
