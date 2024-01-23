@@ -57,7 +57,7 @@ class UI:
         resp = await self.coordinator_client.connect(files)
         console.print(
             Panel(f"[bold green] Successfully connected to coordinator![/]\n You are sharing: {len(files)} files"))
-        
+
     @app.command()
     async def statistics(self):
         statistics = await self.coordinator_client.get_statistics()
@@ -102,7 +102,7 @@ def main():
 
 async def run_app(loop):
     args = arguments()
-    coordinator_client = CoordinatorClient('', '', args.port)
+    coordinator_client = CoordinatorClient("192.168.43.9", 65432, args.port)
     file_manager = FileManager(args.fragments, args.documents)
     file_client = FileClient(file_manager)
     download_manager = DownloadManager(args.documents, file_client, file_manager, coordinator_client)

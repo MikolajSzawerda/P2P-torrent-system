@@ -23,7 +23,7 @@ class DownloadManager:
         self.file_manager.add_document(file_hash, fragments)
         fragments = self.file_manager.get_missing_file_fragments(file_hash)
         data = await self.coordinator_client.get_file_fragments(file_name, file_hash, fragments)
-        tasks = [self.file_client.download_fragment(file_hash, int(frag_id) + 1, server_port=port) for
+        tasks = [self.file_client.download_fragment(file_hash, int(frag_id) + 1, server_port=port, server_ip=host) for
                  (frag_id, (host, port)) in data.items()]
 
         await asyncio.gather(*tasks)
