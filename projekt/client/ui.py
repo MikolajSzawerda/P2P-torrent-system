@@ -87,11 +87,13 @@ class UI:
 
 
 def arguments():
-    parser = argparse.ArgumentParser(description="Example script with named arguments.")
-    parser.add_argument('--port', type=int, required=True, help='Your name')
-    parser.add_argument('--fragments', type=str, default='fragments', help='Your name')
-    parser.add_argument('--documents', type=str, default='documents', help='Your age (default: 30)')
-    parser.add_argument('--onlyserver', action='store_true', help='Your age (default: 30)')
+    parser = argparse.ArgumentParser(description="Torrent client")
+    parser.add_argument('--port', type=int, required=True, help='Your file server port')
+    parser.add_argument('--cport', type=int, required=True, help='Coordinator port')
+    parser.add_argument('--chost', type=str, required=True, help='Coordinator host')
+    parser.add_argument('--fragments', type=str, default='fragments', help='Dir of temp')
+    parser.add_argument('--documents', type=str, default='documents', help='Dir of docs')
+    parser.add_argument('--onlyserver', action='store_true')
     return parser.parse_args()
 
 
@@ -102,7 +104,7 @@ def main():
 
 async def run_app(loop):
     args = arguments()
-    coordinator_client = CoordinatorClient("192.168.43.9", 65432, args.port)
+    coordinator_client = CoordinatorClient(args.chost, args.cport, args.port)
     file_manager = FileManager(args.fragments, args.documents)
     file_client = FileClient(file_manager)
     download_manager = DownloadManager(args.documents, file_client, file_manager, coordinator_client)

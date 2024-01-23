@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Set
 
-FRAGMENT_SIZE = 80
+FRAGMENT_SIZE = 40000
 MSG_DATA_REQUEST = 0
 MSG_DATA_TRANSFER = 1
 COMMON_HEADER_SCHEME = '>B I I 32s'  # msg_type, length, fragment_id

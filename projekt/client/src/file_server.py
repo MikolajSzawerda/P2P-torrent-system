@@ -10,6 +10,7 @@ example_data = "data_test"
 
 async def _send_file_stream(file_path, fragment_id: int, writer: asyncio.StreamWriter):
     data = await get_file_fragment(file_path, fragment_id)
+    logger.info("DATA: %s", len(data))
     receiver_header = MsgHeader(MSG_DATA_TRANSFER, len(data), fragment_id, hashlib.md5(data).hexdigest())
     writer.write(serialize_header(receiver_header))
     writer.write(data)
