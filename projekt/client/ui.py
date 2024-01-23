@@ -83,6 +83,9 @@ class UI:
                     if file_data is not None:
                         await self.download_file(**file_data)
                         console.print(Panel(f"[bold green] File downloaded![/]"))
+                elif action == 'stats':
+                    stats = await self.statistics()
+                    console.print(stats)
 
     async def _input(self, loop, pool, prompt):
         return await loop.run_in_executor(pool, lambda: Prompt.ask(prompt))
