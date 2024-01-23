@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import logging.config
+from concurrent.futures import ThreadPoolExecutor
 
 import typer
 from rich.console import Console
@@ -62,26 +63,27 @@ class UI:
         statistics = await self.coordinator_client.get_statistics()
         return statistics
 
-    async def display_ui(self):
+    async def display_ui(self, loop):
         await self.coordinator_client.start()
         await self.connect_cmd()
         if self.as_server:
             return
         files_cache = {}
-        while True:
-            action = Prompt.ask("[bold red] Action[/]")
-            if action == 'list':
-                file_name = Prompt.ask("File name")
-                files_cache = await self.list_files(file_name)
-            elif action == 'download':
-                file_hash = Prompt.ask("File hash")
-                file_data = files_cache.get(file_hash.strip())
-                if file_data is not None:
-                    await self.download_file(**file_data)
-                    console.print(Panel(f"[bold green] File downloaded![/]"))
-            elif action == 'statistics':
-                statistics = await self.statistics()
-                console.print(statistics)
+        with ThreadPoolExecutor() as pool:
+            while True:
+                action = await self._input(loop, pool, "[bold red] Action[/]")
+                if action == 'list':
+                    file_name = await self._input(loop, pool, "File name")
+                    files_cache = await self.list_files(file_name)
+                elif action == 'download':
+                    file_hash = await self._input(loop, pool, "File hash")
+                    file_data = files_cache.get(file_hash.strip())
+                    if file_data is not None:
+                        await self.download_file(**file_data)
+                        console.print(Panel(f"[bold green] File downloaded![/]"))
+
+    async def _input(self, loop, pool, prompt):
+        return await loop.run_in_executor(pool, lambda: Prompt.ask(prompt))
 
 
 def arguments():
@@ -93,7 +95,12 @@ def arguments():
     return parser.parse_args()
 
 
-async def main():
+def main():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run_app(loop))
+
+
+async def run_app(loop):
     args = arguments()
     coordinator_client = CoordinatorClient('', '', args.port)
     file_manager = FileManager(args.fragments, args.documents)
@@ -102,10 +109,10 @@ async def main():
     ui = UI(coordinator_client, file_manager, file_client, download_manager, args.onlyserver)
     file_registry = await file_manager.get_files_registry()
     await asyncio.gather(
-        ui.display_ui(),
-        start_file_sharing(file_registry, args.port)
+        start_file_sharing(file_registry, args.port),
+        ui.display_ui(loop),
     )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
