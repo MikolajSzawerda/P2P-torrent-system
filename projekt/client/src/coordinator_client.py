@@ -11,7 +11,7 @@ class CoordinatorClient:
         self.writer = None
 
     async def start(self):
-        reader, writer = await asyncio.open_connection('localhost', 65432)
+        reader, writer = await asyncio.open_connection(self.host, self.port)
         self.reader = reader
         self.writer = writer
 
@@ -45,7 +45,7 @@ class CoordinatorClient:
         await self.writer.drain()
         resp = await self.reader.read(4096)
         return json.loads(resp.decode())
-    
+
     async def get_statistics(self):
         self.writer.write(json.dumps({
             'route': 'generate_stats',
