@@ -111,9 +111,9 @@ async def run_app(loop):
     file_client = FileClient(file_manager)
     download_manager = DownloadManager(args.documents, file_client, file_manager, coordinator_client)
     ui = UI(coordinator_client, file_manager, file_client, download_manager, args.onlyserver)
-    file_registry = await file_manager.get_files_registry()
+    await file_manager.inspect_files_registry()
     await asyncio.gather(
-        start_file_sharing(file_registry, args.port),
+        start_file_sharing(file_manager, args.port),
         ui.display_ui(loop),
     )
 

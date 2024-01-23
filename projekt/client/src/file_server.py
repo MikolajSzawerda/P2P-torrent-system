@@ -1,6 +1,6 @@
 import hashlib
-from typing import Dict
 
+from .FileManager import FileManager
 from .file_store import get_file_fragment
 from .serde import *
 
@@ -18,7 +18,7 @@ async def _send_file_stream(file_path, fragment_id: int, writer: asyncio.StreamW
     await writer.drain()
 
 
-async def _handle_file_share(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, registry: Dict[str, Document]):
+async def _handle_file_share(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, registry: FileManager):
     address = writer.get_extra_info('peername')
     while True:
         header = await read_header(reader)
@@ -29,14 +29,15 @@ async def _handle_file_share(reader: asyncio.StreamReader, writer: asyncio.Strea
         if not header.is_request():
             logger.warning("Not supported message type %d", header.type)
             break
-        file_path = registry.get(header.hash).path
+        logger.info("DATA %s", registry)
+        file_path = registry._files_registry.get(header.hash).path
         await _send_file_stream(file_path, header.fragment_id, writer)
     logger.debug("Transfer to %s ended", address)
     writer.close()
     await writer.wait_closed()
 
 
-async def start_file_sharing(registry: Dict[str, Document], port: int):
+async def start_file_sharing(registry: FileManager, port: int):
     async def file_share_func(reader, writer):
         return await _handle_file_share(reader, writer, registry)
 

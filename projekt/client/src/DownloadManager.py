@@ -28,3 +28,4 @@ class DownloadManager:
 
         await asyncio.gather(*tasks)
         await self.file_manager.merge_fragments(file_hash, file_name)
+        await self.file_manager.inspect_files_registry()

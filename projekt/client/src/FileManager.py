@@ -57,7 +57,7 @@ class FileManager:
             await fragment_file.write(data)
         self._fragments_registry[file_hash].current_fragments.add(fragment_id)
 
-    async def get_files_registry(self) -> Dict[str, Document]:
+    async def inspect_files_registry(self) -> Dict[str, Document]:
         async def calculate_file_hash_and_size(file_path: str) -> Document:
             hash_func = hashlib.md5()
             fragments = 0
@@ -80,9 +80,8 @@ class FileManager:
                 logger.debug("Initializing file %s", file_path)
                 tasks.append(calculate_file_hash_and_size(file_path))
         res = {result.hash: result for result in await asyncio.gather(*tasks)}
-        logger.debug("Registry: %s", res);
+        logger.debug("Registry: %s", res)
         self._files_registry = res
-        return res
 
     def get_files_as_dict(self):
         return [{
