@@ -54,3 +54,18 @@ class CoordinatorClient:
         await self.writer.drain()
         resp = await self.reader.read(4096)
         return json.loads(resp.decode())
+
+    async def share_new_file(self, file_name, file_hash, file_size) -> dict[int, tuple[str, int]]:
+        self.writer.write(json.dumps({
+            "route": "share_file",
+            "payload": {
+                'file': {
+                    'name': file_name,
+                    'hash': file_hash,
+                    'size': file_size
+                }
+            }
+        }).encode())
+        await self.writer.drain()
+        resp = await self.reader.read(4096)
+        return json.loads(resp.decode())

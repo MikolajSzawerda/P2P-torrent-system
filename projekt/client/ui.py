@@ -27,7 +27,8 @@ console = Console()
 
 
 class UI:
-    def __init__(self, coordinator_client, file_manager, file_client, download_manager, as_server=True):
+    def __init__(self, coordinator_client: CoordinatorClient, file_manager, file_client, download_manager,
+                 as_server=True):
         self.coordinator_client = coordinator_client
         self.file_manager = file_manager
         self.file_client = file_client
@@ -50,6 +51,7 @@ class UI:
     @app.command()
     async def download_file(self, file_hash: str, file_name, size: int):
         await self.download_manager.download_file(file_hash, file_name, size)
+        await self.coordinator_client.share_new_file(file_name, file_hash, size)
 
     @app.command()
     async def connect_cmd(self, ):
