@@ -10,7 +10,7 @@ class FileId:
 
 @dataclass(eq=True, frozen=True)
 class File:
-    SEGMENT_SIZE_BYTES = 80
+    SEGMENT_SIZE_BYTES = 40000
 
     id: FileId
     size: int

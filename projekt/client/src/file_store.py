@@ -47,6 +47,9 @@ async def get_files_registry(directory) -> Dict[str, Document]:
 
 
 def get_fragments_registry(parent_directory) -> Dict[str, FragmentedDocument]:
+    if not os.path.exists(parent_directory):
+        os.makedirs(parent_directory)
+
     def extract_frag_id(filename):
         match = re.search(r'fragment_(\d+).bin', filename)
         if match:
