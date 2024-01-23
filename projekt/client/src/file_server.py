@@ -1,5 +1,4 @@
 import hashlib
-import logging
 from typing import Dict
 
 from .file_store import get_file_fragment
@@ -40,7 +39,7 @@ async def start_file_sharing(registry: Dict[str, Document], port: int):
     async def file_share_func(reader, writer):
         return await _handle_file_share(reader, writer, registry)
 
-    server = await asyncio.start_server(file_share_func, host='localhost', port=port)
+    server = await asyncio.start_server(file_share_func, host='0.0.0.0', port=port)
     addr = server.sockets[0].getsockname()
     logger.info("Started client file server on %s", addr)
     async with server:
